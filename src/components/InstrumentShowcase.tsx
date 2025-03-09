@@ -8,25 +8,31 @@ const instruments = [
     id: 'begena',
     name: 'Begena',
     description: 'Known as "King David\'s Harp," the begena is a ten-string lyre used primarily in religious contexts. Its deep, resonant sound is believed to facilitate meditation and spiritual reflection.',
-    image: 'https://images.unsplash.com/photo-1445985543470-41fba5c3144a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+    image: 'https://www.imusic-school.com/blog/wp-content/uploads/2021/03/Illustration-begena.png'
   },
   {
     id: 'kirar',
     name: 'Kirar',
     description: 'A five or six-stringed lyre commonly used in secular Ethiopian music. The kirar produces bright, vibrant tones and is often used to accompany singers and dancers at celebrations.',
-    image: 'https://images.unsplash.com/photo-1621618626640-88dfb748abd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+    image: 'https://grandview-mercantile.storage.googleapis.com/wp-content/uploads/2023/03/20161932/ZTRA_112-2.jpg'
+  },
+  {
+    id: 'washent',
+    name: 'washent',
+    description: 'A five or six-stringed lyre commonly used in secular Ethiopian music. The kirar produces bright, vibrant tones and is often used to accompany singers and dancers at celebrations.',
+    image: 'https://www.horniman.ac.uk/media-collection/163/516/WI_M19_4_66_3.jpg'
   },
   {
     id: 'masinko',
     name: 'Masinko',
     description: 'A single-stringed bowed lute with a diamond-shaped sound box. The masinko is known for its expressive, voice-like quality that can mimic the human voice in traditional Ethiopian storytelling.',
-    image: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+    image: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/COLLECTIE_TROPENMUSEUM_Langhalsluit_met_1_snaar_TMnr_2997-19a.jpg'
   },
   {
     id: 'kabaro',
     name: 'Kabaro',
     description: 'A double-headed drum used in religious ceremonies. The kabaro\'s rhythmic patterns guide the congregation and accompany the mezmur hymns during orthodox services.',
-    image: 'https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+    image: 'https://www.shutterstock.com/image-illustration/tradtional-ethiopian-drum-3d-render-600nw-2161938547.jpg'
   }
 ];
 
