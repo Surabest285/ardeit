@@ -1,11 +1,16 @@
 
 import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Menu, X } from 'lucide-react';
+import ProfileMenu from './ProfileMenu';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, profile } = useAuth();
+  const location = useLocation();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +20,13 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  const isTeacher = profile?.role === 'teacher';
 
   return (
     <header 
@@ -26,11 +38,11 @@ const Navbar = () => {
       )}
     >
       <nav className="container-custom flex justify-between items-center">
-        <a href="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <span className="text-xl md:text-2xl font-serif font-semibold text-ethiopia-terracotta">
             <span className="text-ethiopia-amber">Mezmur</span> Melodies
           </span>
-        </a>
+        </Link>
         
         {/* Mobile Menu Button */}
         <button 
@@ -43,17 +55,15 @@ const Navbar = () => {
         
         {/* Desktop Navigation */}
         <ul className="hidden md:flex items-center gap-8">
-          <li><a href="#courses" className="nav-link">Courses</a></li>
-          <li><a href="#instruments" className="nav-link">Instruments</a></li>
-          <li><a href="#about" className="nav-link">About</a></li>
-          <li><a href="#contact" className="nav-link">Contact</a></li>
+          <li><Link to="/#courses" className="nav-link">Courses</Link></li>
+          <li><Link to="/#instruments" className="nav-link">Instruments</Link></li>
+          <li><Link to="/#about" className="nav-link">About</Link></li>
+          <li><Link to="/#contact" className="nav-link">Contact</Link></li>
+          {isTeacher && (
+            <li><Link to="/teacher-dashboard" className="nav-link">Dashboard</Link></li>
+          )}
           <li>
-            <a 
-              href="#join" 
-              className="btn-primary flex items-center gap-2 hover:translate-y-[-2px]"
-            >
-              Join Now
-            </a>
+            <ProfileMenu />
           </li>
         </ul>
         
@@ -62,49 +72,54 @@ const Navbar = () => {
           <div className="fixed inset-0 bg-white z-40 pt-20 p-6 md:hidden animate-fade-in-up">
             <ul className="flex flex-col gap-6 text-lg">
               <li className="border-b border-ethiopia-sand pb-3">
-                <a 
-                  href="#courses" 
+                <Link 
+                  to="/#courses" 
                   className="block nav-link" 
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Courses
-                </a>
+                </Link>
               </li>
               <li className="border-b border-ethiopia-sand pb-3">
-                <a 
-                  href="#instruments" 
+                <Link 
+                  to="/#instruments" 
                   className="block nav-link" 
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Instruments
-                </a>
+                </Link>
               </li>
               <li className="border-b border-ethiopia-sand pb-3">
-                <a 
-                  href="#about" 
+                <Link 
+                  to="/#about" 
                   className="block nav-link" 
                   onClick={() => setIsMenuOpen(false)}
                 >
                   About
-                </a>
+                </Link>
               </li>
               <li className="border-b border-ethiopia-sand pb-3">
-                <a 
-                  href="#contact" 
+                <Link 
+                  to="/#contact" 
                   className="block nav-link" 
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Contact
-                </a>
+                </Link>
               </li>
-              <li className="mt-4">
-                <a 
-                  href="#join" 
-                  className="btn-primary block text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Join Now
-                </a>
+              {isTeacher && (
+                <li className="border-b border-ethiopia-sand pb-3">
+                  <Link 
+                    to="/teacher-dashboard" 
+                    className="block nav-link" 
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+              )}
+              <li className="mt-4 flex justify-center">
+                <ProfileMenu />
               </li>
             </ul>
           </div>
