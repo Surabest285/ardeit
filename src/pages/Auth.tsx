@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,6 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'student' | 'teacher'>('student');
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('signin');
 
@@ -46,23 +45,6 @@ const Auth = () => {
       });
     } catch (error: any) {
       console.error('Sign up error:', error);
-    }
-  };
-
-  // Demo account login handlers
-  const loginAsStudent = async () => {
-    try {
-      await signIn('demo@stu.com', '12345678');
-    } catch (error) {
-      console.error('Demo student login failed:', error);
-    }
-  };
-
-  const loginAsTeacher = async () => {
-    try {
-      await signIn('demo@teach.com', '12345678');
-    } catch (error) {
-      console.error('Demo teacher login failed:', error);
     }
   };
 
@@ -107,29 +89,6 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-                </div>
-                <div className="pt-2 flex flex-col space-y-2">
-                  <div className="text-sm text-muted-foreground">Demo Accounts:</div>
-                  <div className="flex space-x-2">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      className="flex-1"
-                      onClick={loginAsStudent}
-                    >
-                      Login as Student
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      className="flex-1"
-                      onClick={loginAsTeacher}
-                    >
-                      Login as Teacher
-                    </Button>
-                  </div>
                 </div>
               </CardContent>
               <CardFooter>

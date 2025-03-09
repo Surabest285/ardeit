@@ -46,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -77,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
+      console.log('Fetched profile:', data);
       setProfile(data as Profile);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -110,12 +112,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Signup successful:', data);
+      
+      // Note: We don't automatically sign in after signup as Supabase may require email verification
+      // Users will need to sign in manually after registration
+      
       toast({
         title: 'Registration successful',
-        description: 'Please check your email to confirm your account.',
+        description: 'You can now sign in with your credentials.',
       });
+      
+      return;
     } catch (error: any) {
       console.error('Signup exception:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -142,12 +151,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Login successful:', data);
+      
+      // Fetch the user profile after login
+      if (data.user) {
+        await fetchProfile(data.user.id);
+      }
+      
       toast({
         title: 'Login successful',
         description: 'Welcome back!',
       });
+      
+      return;
     } catch (error: any) {
       console.error('Login exception:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
