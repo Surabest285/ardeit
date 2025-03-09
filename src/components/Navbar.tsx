@@ -1,16 +1,18 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Menu, X } from 'lucide-react';
 import ProfileMenu from './ProfileMenu';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, profile } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +29,15 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const isTeacher = profile?.role === 'teacher';
+  const dashboardLink = isTeacher ? '/teacher/dashboard' : '/student/dashboard';
+
+  const handleDashboardClick = () => {
+    if (user) {
+      navigate(dashboardLink);
+    } else {
+      navigate('/auth');
+    }
+  };
 
   return (
     <header 
@@ -59,8 +70,16 @@ const Navbar = () => {
           <li><Link to="/#instruments" className="nav-link">Instruments</Link></li>
           <li><Link to="/#about" className="nav-link">About</Link></li>
           <li><Link to="/#contact" className="nav-link">Contact</Link></li>
-          {isTeacher && (
-            <li><Link to="/teacher-dashboard" className="nav-link">Dashboard</Link></li>
+          {user && (
+            <li>
+              <Button 
+                onClick={handleDashboardClick} 
+                variant="outline" 
+                className="border-ethiopia-amber text-ethiopia-earth hover:bg-ethiopia-amber hover:text-white"
+              >
+                Dashboard
+              </Button>
+            </li>
           )}
           <li>
             <ProfileMenu />
@@ -107,15 +126,15 @@ const Navbar = () => {
                   Contact
                 </Link>
               </li>
-              {isTeacher && (
+              {user && (
                 <li className="border-b border-ethiopia-sand pb-3">
-                  <Link 
-                    to="/teacher-dashboard" 
-                    className="block nav-link" 
-                    onClick={() => setIsMenuOpen(false)}
+                  <Button 
+                    onClick={handleDashboardClick} 
+                    variant="outline" 
+                    className="w-full border-ethiopia-amber text-ethiopia-earth hover:bg-ethiopia-amber hover:text-white"
                   >
                     Dashboard
-                  </Link>
+                  </Button>
                 </li>
               )}
               <li className="mt-4 flex justify-center">

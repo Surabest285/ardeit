@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
-import { Clock, BookOpen, Star, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Star } from 'lucide-react';
 
-interface CourseCardProps {
+export interface CourseCardProps {
   title: string;
   description: string;
   image: string;
@@ -12,74 +12,57 @@ interface CourseCardProps {
   lessons: number;
   rating: number;
   className?: string;
+  style?: React.CSSProperties; // Added style prop for animation delay
 }
 
-const CourseCard = ({ 
-  title, 
-  description, 
-  image, 
-  duration, 
-  level, 
-  lessons, 
+const CourseCard: React.FC<CourseCardProps> = ({
+  title,
+  description,
+  image,
+  duration,
+  level,
+  lessons,
   rating,
-  className
-}: CourseCardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-  
+  className = '',
+  style,
+}) => {
   return (
     <div 
-      className={cn(
-        "bg-white rounded-xl overflow-hidden shadow-soft transition-all duration-300",
-        isHovered && "shadow-md translate-y-[-5px]",
-        className
-      )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`overflow-hidden rounded-xl border border-ethiopia-sand/30 bg-white shadow-sm hover:shadow-md transition duration-300 ${className}`}
+      style={style}
     >
-      <div className="relative h-48 overflow-hidden">
-        <img 
-          src={image} 
-          alt={title} 
-          className={cn(
-            "w-full h-full object-cover transition-transform duration-700",
-            isHovered && "scale-105"
-          )}
+      <div className="aspect-video w-full overflow-hidden">
+        <img
+          src={image || "/placeholder.svg"}
+          alt={title}
+          className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
         />
-        <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium">
-          {level}
-        </div>
       </div>
-      
-      <div className="p-5 space-y-4">
-        <h3 className="text-xl font-serif font-semibold">{title}</h3>
-        <p className="text-muted-foreground text-sm line-clamp-2">{description}</p>
-        
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Clock size={14} />
-            <span>{duration}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <BookOpen size={14} />
-            <span>{lessons} lessons</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Star size={14} className="fill-ethiopia-amber text-ethiopia-amber" />
-            <span>{rating.toFixed(1)}</span>
-          </div>
+      <div className="p-5">
+        <h3 className="mb-2 text-xl font-semibold text-ethiopia-terracotta">{title}</h3>
+        <p className="mb-4 text-sm text-gray-600 line-clamp-2">{description}</p>
+        <div className="mb-4 flex flex-wrap gap-2">
+          <span className="inline-flex items-center rounded-full bg-ethiopia-parchment px-2.5 py-0.5 text-xs font-medium text-ethiopia-earth">
+            {duration}
+          </span>
+          <span className="inline-flex items-center rounded-full bg-ethiopia-parchment px-2.5 py-0.5 text-xs font-medium text-ethiopia-earth">
+            {level}
+          </span>
+          <span className="inline-flex items-center rounded-full bg-ethiopia-parchment px-2.5 py-0.5 text-xs font-medium text-ethiopia-earth">
+            {lessons} lessons
+          </span>
         </div>
-        
-        <div className="pt-2">
-          <a 
-            href="#learn-more" 
-            className="flex items-center justify-between text-ethiopia-amber font-medium hover:text-ethiopia-terracotta transition-colors"
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Star className="mr-1 h-4 w-4 fill-ethiopia-amber text-ethiopia-amber" />
+            <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+          </div>
+          <Button 
+            variant="outline" 
+            className="text-sm border-ethiopia-amber text-ethiopia-earth hover:bg-ethiopia-amber hover:text-white"
           >
-            <span>Learn more</span>
-            <ChevronRight size={16} className={cn(
-              "transition-transform duration-300",
-              isHovered && "translate-x-1"
-            )} />
-          </a>
+            View Course
+          </Button>
         </div>
       </div>
     </div>
