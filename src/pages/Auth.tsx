@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
 
 const Auth = () => {
   const { user, signIn, signUp, loading } = useAuth();
@@ -15,6 +16,9 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'student' | 'teacher'>('student');
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('signin');
 
   // Redirect if already logged in
   if (user) {
@@ -23,12 +27,43 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn(email, password);
+    try {
+      await signIn(email, password);
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signUp(email, password, role, fullName);
+    try {
+      await signUp(email, password, role, fullName);
+      // After signup, switch to sign in tab
+      setActiveTab('signin');
+      toast({
+        title: "Account created",
+        description: "Please sign in with your new credentials",
+      });
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+    }
+  };
+
+  // Demo account login handlers
+  const loginAsStudent = async () => {
+    try {
+      await signIn('demo@stu.com', '12345678');
+    } catch (error) {
+      console.error('Demo student login failed:', error);
+    }
+  };
+
+  const loginAsTeacher = async () => {
+    try {
+      await signIn('demo@teach.com', '12345678');
+    } catch (error) {
+      console.error('Demo teacher login failed:', error);
+    }
   };
 
   return (
@@ -42,7 +77,7 @@ const Auth = () => {
             Sign in or create an account to continue
           </CardDescription>
         </CardHeader>
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -72,6 +107,29 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                </div>
+                <div className="pt-2 flex flex-col space-y-2">
+                  <div className="text-sm text-muted-foreground">Demo Accounts:</div>
+                  <div className="flex space-x-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      className="flex-1"
+                      onClick={loginAsStudent}
+                    >
+                      Login as Student
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      className="flex-1"
+                      onClick={loginAsTeacher}
+                    >
+                      Login as Teacher
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
               <CardFooter>

@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('profiles')
         .select('id, role, full_name, avatar_url')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -86,7 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, role: UserRole, fullName: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signUp({
+      console.log('Signing up with:', { email, role, fullName });
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -98,6 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        console.error('Signup error:', error);
         toast({
           title: 'Registration failed',
           description: error.message,
@@ -106,10 +109,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
+      console.log('Signup successful:', data);
       toast({
         title: 'Registration successful',
         description: 'Please check your email to confirm your account.',
       });
+    } catch (error: any) {
+      console.error('Signup exception:', error);
     } finally {
       setLoading(false);
     }
@@ -118,12 +124,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Signing in with:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Login error:', error);
         toast({
           title: 'Login failed',
           description: error.message,
@@ -132,10 +141,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
+      console.log('Login successful:', data);
       toast({
         title: 'Login successful',
         description: 'Welcome back!',
       });
+    } catch (error: any) {
+      console.error('Login exception:', error);
     } finally {
       setLoading(false);
     }
