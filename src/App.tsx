@@ -18,6 +18,7 @@ import StudentCourses from "./pages/student/StudentCourses";
 import StudentCertificates from "./pages/student/StudentCertificates";
 import StudentCourseDetails from "./pages/student/StudentCourseDetails";
 import StudentClassroom from "./pages/student/StudentClassroom";
+import StudentLiveClass from "./pages/student/StudentLiveClass";
 
 // Teacher pages
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
@@ -25,6 +26,7 @@ import TeacherCourses from "./pages/teacher/TeacherCourses";
 import TeacherCreateCourse from "./pages/teacher/TeacherCreateCourse";
 import TeacherAnalytics from "./pages/teacher/TeacherAnalytics";
 import TeacherAnnouncements from "./pages/teacher/TeacherAnnouncements";
+import TeacherLiveClass from "./pages/teacher/TeacherLiveClass";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,7 @@ const App = () => (
             <Route path="/student/certificates" element={<StudentCertificates />} />
             <Route path="/student/course/:courseId" element={<StudentCourseDetails />} />
             <Route path="/student/classroom/:courseId" element={<StudentClassroom />} />
+            <Route path="/student/live-class/:courseId" element={<StudentLiveClass />} />
             
             {/* Teacher Routes */}
             <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
@@ -55,6 +58,7 @@ const App = () => (
             <Route path="/teacher/courses/create" element={<TeacherCreateCourse />} />
             <Route path="/teacher/analytics" element={<TeacherAnalytics />} />
             <Route path="/teacher/announcements" element={<TeacherAnnouncements />} />
+            <Route path="/teacher/live-class/:courseId" element={<TeacherLiveClass />} />
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />

@@ -11,13 +11,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UserCircle, LogOut, User } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const ProfileMenu = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { toast } = useToast();
 
   if (!user) {
     return (
@@ -43,8 +46,42 @@ const ProfileMenu = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
+    try {
+      setIsLoggingOut(true);
+      setIsOpen(false);
+      
+      await signOut();
+      
+      toast({
+        title: 'Logged out',
+        description: 'You have been successfully logged out.',
+      });
+      
+      navigate('/auth');
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Logout failed',
+        description: error.message || 'There was a problem logging out.',
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const navigateToProfile = () => {
+    setIsOpen(false);
+    navigate('/profile');
+  };
+
+  const navigateToDashboard = () => {
+    setIsOpen(false);
+    if (profile?.role === 'teacher') {
+      navigate('/teacher/dashboard');
+    } else {
+      navigate('/student/dashboard');
+    }
   };
 
   return (
@@ -53,7 +90,7 @@ const ProfileMenu = () => {
         <Button variant="ghost" className="relative rounded-full h-8 w-8 p-0">
           <Avatar>
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Profile" />
+              <AvatarImage src={profile.avatar_url} alt="Profile" />
             ) : (
               <AvatarFallback className="bg-ethiopia-amber text-white">
                 {getInitials()}
@@ -75,10 +112,14 @@ const ProfileMenu = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           className="cursor-pointer"
-          onClick={() => {
-            setIsOpen(false);
-            navigate('/profile');
-          }}
+          onClick={navigateToDashboard}
+        >
+          <UserCircle className="mr-2 h-4 w-4" />
+          <span>Dashboard</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          className="cursor-pointer"
+          onClick={navigateToProfile}
         >
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
@@ -87,9 +128,10 @@ const ProfileMenu = () => {
         <DropdownMenuItem 
           className="cursor-pointer text-red-600"
           onClick={handleSignOut}
+          disabled={isLoggingOut}
         >
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>{isLoggingOut ? 'Logging out...' : 'Log out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +10,8 @@ import {
   FileText, 
   Loader2, 
   CheckCircle,
-  Circle 
+  Circle, 
+  Video
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Progress } from '@/components/ui/progress';
@@ -62,6 +62,11 @@ const StudentClassroom = () => {
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [markingComplete, setMarkingComplete] = useState(false);
+
+  const handleJoinLiveClass = () => {
+    if (!courseId) return;
+    navigate(`/student/live-class/${courseId}`);
+  };
 
   useEffect(() => {
     const fetchClassroomData = async () => {
@@ -305,11 +310,20 @@ const StudentClassroom = () => {
               </Button>
               <h1 className="text-2xl font-serif text-ethiopia-terracotta">{course?.title}</h1>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-gray-600">
-                {progress}% complete
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={handleJoinLiveClass}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <Video className="h-4 w-4 mr-2" />
+                Join Live Class
+              </Button>
+              <div className="flex items-center gap-2">
+                <div className="text-sm text-gray-600">
+                  {progress}% complete
+                </div>
+                <Progress value={progress} className="w-28 h-2" />
               </div>
-              <Progress value={progress} className="w-28 h-2" />
             </div>
           </div>
           

@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import CourseCard from '@/components/CourseCard';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, Video } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 interface Course {
@@ -59,6 +59,10 @@ const TeacherCourses = () => {
     fetchCourses();
   }, [user, toast]);
 
+  const startLiveClass = (courseId: string) => {
+    navigate(`/teacher/live-class/${courseId}`);
+  };
+
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
       <div className="min-h-screen pt-20 pb-12 bg-ethiopia-parchment/30">
@@ -80,17 +84,28 @@ const TeacherCourses = () => {
           ) : courses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  id={course.id}
-                  title={course.title}
-                  description={course.description}
-                  image={course.image}
-                  duration={course.duration}
-                  level={course.level}
-                  lessons={course.lessons}
-                  rating={course.rating}
-                />
+                <div key={course.id} className="relative">
+                  <CourseCard
+                    id={course.id}
+                    title={course.title}
+                    description={course.description}
+                    image={course.image}
+                    duration={course.duration}
+                    level={course.level}
+                    lessons={course.lessons}
+                    rating={course.rating}
+                  />
+                  <div className="absolute top-2 right-2">
+                    <Button 
+                      onClick={() => startLiveClass(course.id)}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <Video className="h-4 w-4 mr-1" />
+                      Start Live
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
