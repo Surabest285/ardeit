@@ -1,62 +1,48 @@
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import CourseCard from '@/components/CourseCard';
+import CourseCategories from '@/components/CourseCategories';
 import InstrumentShowcase from '@/components/InstrumentShowcase';
 import AboutSection from '@/components/AboutSection';
 import NewsletterForm from '@/components/NewsletterForm';
 import Footer from '@/components/Footer';
-import { ArrowRight } from 'lucide-react';
-
-const courses = [
-  {
-    id: "1",
-    title: 'Beginner Mezmur Vocal Techniques',
-    description: 'Learn the fundamentals of Ethiopian Orthodox hymn singing, including basic scales and vocal techniques.',
-    image: 'https://images.unsplash.com/photo-1592591452788-6e2edb7426cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    duration: '6 weeks',
-    level: 'Beginner',
-    lessons: 12,
-    rating: 4.8
-  },
-  {
-    id: "2",
-    title: 'Begena for Worship',
-    description: 'Master the begena, the ancient Ethiopian harp used in spiritual practice and meditation.',
-    image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    duration: '8 weeks',
-    level: 'Intermediate',
-    lessons: 16,
-    rating: 4.7
-  },
-  {
-    id: "3",
-    title: 'Advanced Mezmur Composition',
-    description: 'Learn to compose traditional Mezmur hymns following authentic Ethiopian Orthodox musical structures.',
-    image: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    duration: '10 weeks',
-    level: 'Advanced',
-    lessons: 20,
-    rating: 4.9
-  },
-  {
-    id: "4",
-    title: 'Traditional Kirar Techniques',
-    description: 'Explore the techniques and styles of playing the kirar in both religious and secular Ethiopian music.',
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '7 weeks',
-    level: 'All Levels',
-    lessons: 14,
-    rating: 4.6
-  }
-];
+import { supabase } from '@/integrations/supabase/client';
+import { ArrowRight, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   
   useEffect(() => {
     setIsLoaded(true);
+    
+    // Fetch real courses from Supabase
+    const fetchCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(8);
+          
+        if (error) {
+          console.error('Error fetching courses:', error);
+        } else {
+          setCourses(data || []);
+        }
+      } catch (error) {
+        console.error('Exception fetching courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCourses();
   }, []);
   
   return (
@@ -77,32 +63,33 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                id={course.id}
-                title={course.title}
-                description={course.description}
-                image={course.image}
-                duration={course.duration}
-                level={course.level}
-                lessons={course.lessons}
-                rating={course.rating}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${parseInt(course.id) * 100}ms` }}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-ethiopia-amber" />
+            </div>
+          ) : courses.length > 0 ? (
+            <CourseCategories courses={courses} />
+          ) : (
+            <div className="text-center py-20 bg-white rounded-xl shadow-sm">
+              <h3 className="text-xl font-medium text-ethiopia-earth mb-4">No courses available</h3>
+              <p className="text-gray-500 mb-6">There are no courses available at the moment.</p>
+              <Button 
+                onClick={() => navigate('/auth')} 
+                className="bg-ethiopia-amber text-white hover:bg-ethiopia-amber/90"
+              >
+                Sign In to Create Courses
+              </Button>
+            </div>
+          )}
           
           <div className="mt-12 text-center">
-            <a 
-              href="#all-courses"
-              className="inline-flex items-center gap-2 btn-primary px-8 group"
+            <Button 
+              onClick={() => navigate('/student/explore')}
+              className="inline-flex items-center gap-2 bg-ethiopia-amber text-white hover:bg-ethiopia-amber/90 px-8 group"
             >
-              View All Courses
+              Explore All Courses
               <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-            </a>
+            </Button>
           </div>
         </div>
       </section>

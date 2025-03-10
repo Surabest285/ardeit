@@ -48,8 +48,8 @@ const ProfileMenu = () => {
   const handleSignOut = async () => {
     try {
       setIsLoggingOut(true);
-      setIsOpen(false);
       
+      // Fixed: Don't close the menu right away to prevent hanging UI
       await signOut();
       
       toast({
@@ -57,7 +57,9 @@ const ProfileMenu = () => {
         description: 'You have been successfully logged out.',
       });
       
-      navigate('/auth');
+      // Navigate before closing the menu
+      navigate('/');
+      setIsOpen(false);
     } catch (error: any) {
       console.error('Logout error:', error);
       toast({

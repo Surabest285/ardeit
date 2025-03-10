@@ -27,13 +27,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
       setShowLoading(false);
     } else {
-      // Add a timeout to prevent infinite loading state
+      // Fixed: Use a short timeout to prevent infinite loading
       const timer = setTimeout(() => {
         setShowLoading(false);
         if (!user) {
           navigate('/auth');
         }
-      }, 3000); // 3 seconds timeout
+      }, 2000); // Reduced to 2 seconds
 
       return () => clearTimeout(timer);
     }
@@ -48,6 +48,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  // Return children only when we're sure the user is authenticated and has the right role
   if (!user) {
     return null;
   }

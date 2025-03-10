@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import CourseCard from '@/components/CourseCard';
+import CourseCategories from '@/components/CourseCategories';
 import { Button } from '@/components/ui/button';
 import { Loader2, Search, Filter } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -16,6 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
 
 interface Course {
   id: string;
@@ -39,6 +46,7 @@ const StudentExplore = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
   const [durationFilter, setDurationFilter] = useState('');
+  const [activeTab, setActiveTab] = useState('grid');
   
   useEffect(() => {
     const fetchCoursesAndEnrollments = async () => {
@@ -99,6 +107,9 @@ const StudentExplore = () => {
     }
   };
 
+  // Get unique levels for category tabs
+  const levels = Array.from(new Set(courses.map(course => course.level)));
+
   return (
     <ProtectedRoute allowedRoles={['student']}>
       <div className="min-h-screen pt-20 pb-12 bg-ethiopia-parchment/30">
@@ -149,29 +160,45 @@ const StudentExplore = () => {
             </div>
           </div>
 
+          {/* View Switcher */}
+          <div className="mb-6 flex justify-end">
+            <Tabs defaultValue="grid" value={activeTab} onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="grid">Grid View</TabsTrigger>
+                <TabsTrigger value="categories">Categories</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-ethiopia-amber" />
             </div>
           ) : filteredCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  id={course.id}
-                  title={course.title}
-                  description={course.description}
-                  image={course.image}
-                  duration={course.duration}
-                  level={course.level}
-                  lessons={course.lessons}
-                  rating={course.rating || 0}
-                  isEnrolled={enrolledCourseIds.includes(course.id)}
-                  className="cursor-pointer"
-                  style={{ animationDelay: `${filteredCourses.indexOf(course) * 0.1}s` }}
-                />
-              ))}
-            </div>
+            <>
+              {activeTab === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredCourses.map((course) => (
+                    <CourseCard
+                      key={course.id}
+                      id={course.id}
+                      title={course.title}
+                      description={course.description}
+                      image={course.image}
+                      duration={course.duration}
+                      level={course.level}
+                      lessons={course.lessons}
+                      rating={course.rating || 0}
+                      isEnrolled={enrolledCourseIds.includes(course.id)}
+                      className="cursor-pointer"
+                      style={{ animationDelay: `${filteredCourses.indexOf(course) * 0.1}s` }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <CourseCategories courses={filteredCourses} />
+              )}
+            </>
           ) : (
             <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-ethiopia-sand/30">
               <h3 className="text-xl font-medium text-ethiopia-earth mb-4">No courses found</h3>
