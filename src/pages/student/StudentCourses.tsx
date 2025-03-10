@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,7 +20,6 @@ interface EnrolledCourse {
     level: string;
     lessons: number;
     rating: number;
-    created_at: string;
   };
   progress: any;
   enrolled_at: string;

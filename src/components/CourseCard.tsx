@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
 
 export interface CourseCardProps {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   image: string;
@@ -34,6 +34,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const navigate = useNavigate();
 
   const handleViewCourse = () => {
+    if (!id) return;
+    
     if (isEnrolled) {
       navigate(`/student/classroom/${id}`);
     } else {
@@ -72,13 +74,23 @@ const CourseCard: React.FC<CourseCardProps> = ({
             <Star className="mr-1 h-4 w-4 fill-ethiopia-amber text-ethiopia-amber" />
             <span className="text-sm font-medium">{rating.toFixed(1)}</span>
           </div>
-          <Button 
-            onClick={handleViewCourse} 
-            variant="outline" 
-            className="text-sm border-ethiopia-amber text-ethiopia-earth hover:bg-ethiopia-amber hover:text-white"
-          >
-            {isEnrolled ? 'Continue Learning' : 'View Course'}
-          </Button>
+          {id ? (
+            <Button 
+              onClick={handleViewCourse} 
+              variant="outline" 
+              className="text-sm border-ethiopia-amber text-ethiopia-earth hover:bg-ethiopia-amber hover:text-white"
+            >
+              {isEnrolled ? 'Continue Learning' : 'View Course'}
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              className="text-sm border-ethiopia-amber text-ethiopia-earth hover:bg-ethiopia-amber hover:text-white"
+              disabled
+            >
+              Coming Soon
+            </Button>
+          )}
         </div>
       </div>
     </div>

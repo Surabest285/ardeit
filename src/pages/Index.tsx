@@ -11,7 +11,7 @@ import { ArrowRight } from 'lucide-react';
 
 const courses = [
   {
-    id: 1,
+    id: "1",
     title: 'Beginner Mezmur Vocal Techniques',
     description: 'Learn the fundamentals of Ethiopian Orthodox hymn singing, including basic scales and vocal techniques.',
     image: 'https://images.unsplash.com/photo-1592591452788-6e2edb7426cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -21,7 +21,7 @@ const courses = [
     rating: 4.8
   },
   {
-    id: 2,
+    id: "2",
     title: 'Begena for Worship',
     description: 'Master the begena, the ancient Ethiopian harp used in spiritual practice and meditation.',
     image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -31,7 +31,7 @@ const courses = [
     rating: 4.7
   },
   {
-    id: 3,
+    id: "3",
     title: 'Advanced Mezmur Composition',
     description: 'Learn to compose traditional Mezmur hymns following authentic Ethiopian Orthodox musical structures.',
     image: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -41,7 +41,7 @@ const courses = [
     rating: 4.9
   },
   {
-    id: 4,
+    id: "4",
     title: 'Traditional Kirar Techniques',
     description: 'Explore the techniques and styles of playing the kirar in both religious and secular Ethiopian music.',
     image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
@@ -81,6 +81,7 @@ const Index = () => {
             {courses.map((course) => (
               <CourseCard
                 key={course.id}
+                id={course.id}
                 title={course.title}
                 description={course.description}
                 image={course.image}
@@ -89,7 +90,7 @@ const Index = () => {
                 lessons={course.lessons}
                 rating={course.rating}
                 className="animate-fade-in-up"
-                style={{ animationDelay: `${course.id * 100}ms` }}
+                style={{ animationDelay: `${parseInt(course.id) * 100}ms` }}
               />
             ))}
           </div>

@@ -25,6 +25,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+interface TeacherInfo {
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
 interface Course {
   id: string;
   title: string;
@@ -36,10 +41,7 @@ interface Course {
   rating: number;
   created_at: string;
   teacher_id: string;
-  teacher: {
-    full_name: string;
-    avatar_url: string;
-  };
+  teacher: TeacherInfo;
 }
 
 interface Section {
@@ -87,11 +89,7 @@ const StudentCourseDetails = () => {
             lessons,
             rating,
             created_at,
-            teacher_id,
-            teacher:teacher_id (
-              full_name,
-              avatar_url
-            )
+            teacher_id
           `)
           .eq('id', courseId)
           .single();
@@ -106,7 +104,24 @@ const StudentCourseDetails = () => {
           return;
         }
 
-        setCourse(courseData);
+        // Get teacher info from profiles table
+        const { data: teacherData, error: teacherError } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', courseData.teacher_id)
+          .maybeSingle();
+
+        if (teacherError) {
+          console.error('Error fetching teacher data:', teacherError);
+        }
+
+        // Combine course and teacher data
+        const courseWithTeacher = {
+          ...courseData,
+          teacher: teacherData || { full_name: null, avatar_url: null }
+        };
+          
+        setCourse(courseWithTeacher);
         
         // Check if user is enrolled
         const { data: enrollmentData, error: enrollmentError } = await supabase
