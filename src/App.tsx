@@ -16,6 +16,8 @@ import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentExplore from "./pages/student/StudentExplore";
 import StudentCourses from "./pages/student/StudentCourses";
 import StudentCertificates from "./pages/student/StudentCertificates";
+import StudentCourseDetails from "./pages/student/StudentCourseDetails";
+import StudentClassroom from "./pages/student/StudentClassroom";
 
 // Teacher pages
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/student/explore" element={<StudentExplore />} />
             <Route path="/student/courses" element={<StudentCourses />} />
             <Route path="/student/certificates" element={<StudentCertificates />} />
+            <Route path="/student/course/:courseId" element={<StudentCourseDetails />} />
+            <Route path="/student/classroom/:courseId" element={<StudentClassroom />} />
             
             {/* Teacher Routes */}
             <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
