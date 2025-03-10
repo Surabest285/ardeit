@@ -9,30 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
+      courses: {
         Row: {
-          avatar_url: string | null
           created_at: string
-          full_name: string | null
+          description: string
+          duration: string
           id: string
-          role: Database["public"]["Enums"]["user_role"]
+          image: string | null
+          lessons: number
+          level: string
+          rating: number | null
+          teacher_id: string
+          title: string
           updated_at: string
         }
         Insert: {
-          avatar_url?: string | null
           created_at?: string
-          full_name?: string | null
-          id: string
-          role?: Database["public"]["Enums"]["user_role"]
+          description: string
+          duration: string
+          id?: string
+          image?: string | null
+          lessons?: number
+          level: string
+          rating?: number | null
+          teacher_id: string
+          title: string
           updated_at?: string
         }
         Update: {
-          avatar_url?: string | null
           created_at?: string
+          description?: string
+          duration?: string
+          id?: string
+          image?: string | null
+          lessons?: number
+          level?: string
+          rating?: number | null
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          id: string
+          role: string
+        }
+        Insert: {
+          avatar_url?: string | null
           full_name?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
+          role: string
+        }
+        Update: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string
         }
         Relationships: []
       }
@@ -41,10 +77,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: Database["public"]["Enums"]["user_role"]
-      }
+      [_ in never]: never
     }
     Enums: {
       user_role: "student" | "teacher"
