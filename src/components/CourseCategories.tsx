@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Tag, TrendingUp, Award, BookOpen } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 interface Course {
   id: string;
@@ -20,8 +21,8 @@ interface Course {
   is_popular?: boolean;
   is_trending?: boolean;
   category_id?: string;
-  features?: any[];
-  instructor_info?: Record<string, any>;
+  features?: Json;
+  instructor_info?: Json;
   tags?: { id: string; name: string }[];
 }
 

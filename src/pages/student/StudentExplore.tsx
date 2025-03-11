@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,10 +34,14 @@ interface Course {
   rating: number;
   created_at: string;
   category_id?: string;
+  features?: Json;
+  instructor_info?: Json;
   is_popular?: boolean;
   is_trending?: boolean;
-  features?: any[];
-  instructor_info?: Record<string, any>;
+  category?: {
+    id: string;
+    name: string;
+  };
 }
 
 interface CourseTag {

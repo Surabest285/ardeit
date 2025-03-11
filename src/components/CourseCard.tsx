@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
+import { Json } from '@/integrations/supabase/types';
 
 export interface CourseCardProps {
   id?: string;
@@ -17,6 +18,10 @@ export interface CourseCardProps {
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
+  features?: Json;
+  instructor_info?: Json;
+  is_popular?: boolean;
+  is_trending?: boolean;
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({
