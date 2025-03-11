@@ -21,19 +21,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // If not loading, check authentication immediately
     if (!loading) {
       if (!user) {
+        console.log('No user found, redirecting to auth');
         navigate('/auth');
       } else if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
+        console.log('User does not have required role, redirecting to unauthorized');
         navigate('/unauthorized');
       }
       setShowLoading(false);
     } else {
-      // Fixed: Use a short timeout to prevent infinite loading
+      // Use a reasonable timeout to prevent infinite loading
       const timer = setTimeout(() => {
         setShowLoading(false);
         if (!user) {
+          console.log('Auth timed out, redirecting to auth');
           navigate('/auth');
         }
-      }, 2000); // Reduced to 2 seconds
+      }, 1500); // Reduced to 1.5 seconds for better UX
 
       return () => clearTimeout(timer);
     }

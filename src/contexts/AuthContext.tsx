@@ -11,6 +11,7 @@ type Profile = {
   role: UserRole;
   full_name: string | null;
   avatar_url: string | null;
+  updated_at?: string;
 };
 
 type AuthContextType = {
@@ -34,19 +35,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+    const initializeAuth = async () => {
+      try {
+        setLoading(true);
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          return;
+        }
+        
+        console.log('Initial session check:', session ? 'Session found' : 'No session');
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session);
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -67,9 +86,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
+      
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, role, full_name, avatar_url')
+        .select('id, role, full_name, avatar_url, updated_at')
         .eq('id', userId)
         .maybeSingle();
 
@@ -78,10 +99,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      console.log('Fetched profile:', data);
-      setProfile(data as Profile);
+      if (data) {
+        console.log('Profile fetched successfully:', data);
+        setProfile(data as Profile);
+      } else {
+        console.warn('No profile found for user:', userId);
+      }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Exception fetching profile:', error);
     }
   };
 
@@ -111,10 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
-      console.log('Signup successful:', data);
-      
-      // Note: We don't automatically sign in after signup as Supabase may require email verification
-      // Users will need to sign in manually after registration
+      console.log('Signup response:', data);
       
       toast({
         title: 'Registration successful',
@@ -150,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
-      console.log('Login successful:', data);
+      console.log('Login successful:', data.user?.id);
       
       // Fetch the user profile after login
       if (data.user) {
@@ -177,6 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signOut();
       
       if (error) {
+        console.error('Sign out error:', error);
         toast({
           title: 'Sign out failed',
           description: error.message,
@@ -189,6 +212,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         title: 'Signed out',
         description: 'You have been successfully signed out.',
       });
+    } catch (error: any) {
+      console.error('Sign out exception:', error);
     } finally {
       setLoading(false);
     }
