@@ -33,6 +33,7 @@ const Index = () => {
         if (error) {
           console.error('Error fetching courses:', error);
         } else {
+          console.log('Fetched courses for homepage:', data);
           setCourses(data || []);
         }
       } catch (error) {

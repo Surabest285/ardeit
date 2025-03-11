@@ -50,8 +50,6 @@ const StudentExplore = () => {
   
   useEffect(() => {
     const fetchCoursesAndEnrollments = async () => {
-      if (!user) return;
-      
       try {
         // Fetch all courses
         const { data: coursesData, error: coursesError } = await supabase
@@ -67,18 +65,21 @@ const StudentExplore = () => {
             description: "Failed to load courses. Please try again.",
           });
         } else {
+          console.log('Fetched courses:', coursesData);
           setCourses(coursesData || []);
         }
         
         // Fetch user enrollments to know which courses the user is already enrolled in
-        const { data: enrollmentsData, error: enrollmentsError } = await supabase
-          .from('enrollments')
-          .select('course_id')
-          .eq('user_id', user.id);
-          
-        if (!enrollmentsError && enrollmentsData) {
-          const enrolledIds = enrollmentsData.map(enrollment => enrollment.course_id);
-          setEnrolledCourseIds(enrolledIds);
+        if (user) {
+          const { data: enrollmentsData, error: enrollmentsError } = await supabase
+            .from('enrollments')
+            .select('course_id')
+            .eq('user_id', user.id);
+            
+          if (!enrollmentsError && enrollmentsData) {
+            const enrolledIds = enrollmentsData.map(enrollment => enrollment.course_id);
+            setEnrolledCourseIds(enrolledIds);
+          }
         }
       } catch (error) {
         console.error('Exception fetching courses:', error);
@@ -106,9 +107,6 @@ const StudentExplore = () => {
       navigate(`/student/course/${courseId}`);
     }
   };
-
-  // Get unique levels for category tabs
-  const levels = Array.from(new Set(courses.map(course => course.level)));
 
   return (
     <ProtectedRoute allowedRoles={['student']}>
