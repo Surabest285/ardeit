@@ -16,6 +16,7 @@ export interface CourseCardProps {
   isEnrolled?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  children?: React.ReactNode;
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({
@@ -30,6 +31,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
   isEnrolled = false,
   className = '',
   style,
+  children,
 }) => {
   const navigate = useNavigate();
 
@@ -69,10 +71,13 @@ const CourseCard: React.FC<CourseCardProps> = ({
             {lessons} lessons
           </span>
         </div>
-        <div className="flex items-center justify-between">
+        
+        {children}
+        
+        <div className="flex items-center justify-between mt-4">
           <div className="flex items-center">
             <Star className="mr-1 h-4 w-4 fill-ethiopia-amber text-ethiopia-amber" />
-            <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+            <span className="text-sm font-medium">{rating?.toFixed(1) || "0.0"}</span>
           </div>
           {id ? (
             <Button 

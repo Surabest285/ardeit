@@ -7,7 +7,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import CourseCard from '@/components/CourseCard';
 import CourseCategories from '@/components/CourseCategories';
 import { Button } from '@/components/ui/button';
-import { Loader2, Search, Filter } from 'lucide-react';
+import { Loader2, Search, Filter, Tag, Badge, Award, TrendingUp } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import {
@@ -34,6 +34,23 @@ interface Course {
   lessons: number;
   rating: number;
   created_at: string;
+  category_id?: string;
+  is_popular?: boolean;
+  is_trending?: boolean;
+  features?: any[];
+  instructor_info?: Record<string, any>;
+}
+
+interface CourseTag {
+  id: string;
+  name: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
 }
 
 const StudentExplore = () => {
@@ -46,15 +63,44 @@ const StudentExplore = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
   const [durationFilter, setDurationFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tags, setTags] = useState<CourseTag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('grid');
   
   useEffect(() => {
-    const fetchCoursesAndEnrollments = async () => {
+    const fetchData = async () => {
       try {
-        // Fetch all courses
+        // Fetch categories
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('course_categories')
+          .select('*')
+          .order('name');
+          
+        if (!categoriesError) {
+          console.log('Fetched categories:', categoriesData);
+          setCategories(categoriesData || []);
+        }
+        
+        // Fetch tags
+        const { data: tagsData, error: tagsError } = await supabase
+          .from('course_tags')
+          .select('*')
+          .order('name');
+          
+        if (!tagsError) {
+          console.log('Fetched tags:', tagsData);
+          setTags(tagsData || []);
+        }
+        
+        // Fetch all courses with extended information
         const { data: coursesData, error: coursesError } = await supabase
           .from('courses')
-          .select('*')
+          .select(`
+            *,
+            category:category_id(id, name)
+          `)
           .order('created_at', { ascending: false });
           
         if (coursesError) {
@@ -82,13 +128,13 @@ const StudentExplore = () => {
           }
         }
       } catch (error) {
-        console.error('Exception fetching courses:', error);
+        console.error('Exception fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCoursesAndEnrollments();
+    fetchData();
   }, [user, toast]);
 
   const filteredCourses = courses.filter(course => {
@@ -96,8 +142,11 @@ const StudentExplore = () => {
                           course.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLevel = levelFilter ? course.level === levelFilter : true;
     const matchesDuration = durationFilter ? course.duration === durationFilter : true;
+    const matchesCategory = categoryFilter ? course.category_id === categoryFilter : true;
     
-    return matchesSearch && matchesLevel && matchesDuration;
+    // Additional tag filtering will be added here when tag data is fully implemented
+    
+    return matchesSearch && matchesLevel && matchesDuration && matchesCategory;
   });
 
   const handleCourseClick = (courseId: string) => {
@@ -107,6 +156,37 @@ const StudentExplore = () => {
       navigate(`/student/course/${courseId}`);
     }
   };
+
+  const renderCourseCard = (course: Course) => (
+    <CourseCard
+      key={course.id}
+      id={course.id}
+      title={course.title}
+      description={course.description}
+      image={course.image}
+      duration={course.duration}
+      level={course.level}
+      lessons={course.lessons}
+      rating={course.rating || 0}
+      isEnrolled={enrolledCourseIds.includes(course.id)}
+      className="cursor-pointer"
+    >
+      {(course.is_trending || course.is_popular) && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {course.is_trending && (
+            <div className="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-700">
+              <TrendingUp className="mr-1 h-3 w-3" /> Trending
+            </div>
+          )}
+          {course.is_popular && (
+            <div className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+              <Award className="mr-1 h-3 w-3" /> Popular
+            </div>
+          )}
+        </div>
+      )}
+    </CourseCard>
+  );
 
   return (
     <ProtectedRoute allowedRoles={['student']}>
@@ -128,7 +208,7 @@ const StudentExplore = () => {
                 />
               </div>
               
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 <Select value={levelFilter} onValueChange={setLevelFilter}>
                   <SelectTrigger className="w-36">
                     <SelectValue placeholder="Level" />
@@ -154,8 +234,50 @@ const StudentExplore = () => {
                     <SelectItem value="3+ months">3+ months</SelectItem>
                   </SelectContent>
                 </Select>
+                
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Categories</SelectItem>
+                    {categories.map(category => (
+                      <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+            
+            {tags.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <div className="flex items-center mr-2">
+                  <Tag className="h-4 w-4 mr-1 text-gray-500" />
+                  <span className="text-sm text-gray-600">Filter by tags:</span>
+                </div>
+                {tags.slice(0, 7).map(tag => (
+                  <Button
+                    key={tag.id}
+                    variant="outline"
+                    size="sm"
+                    className={`text-xs rounded-full ${
+                      selectedTags.includes(tag.id) 
+                        ? 'bg-ethiopia-amber/20 border-ethiopia-amber text-ethiopia-earth' 
+                        : 'bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      if (selectedTags.includes(tag.id)) {
+                        setSelectedTags(selectedTags.filter(id => id !== tag.id));
+                      } else {
+                        setSelectedTags([...selectedTags, tag.id]);
+                      }
+                    }}
+                  >
+                    {tag.name}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* View Switcher */}
@@ -176,22 +298,7 @@ const StudentExplore = () => {
             <>
               {activeTab === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCourses.map((course) => (
-                    <CourseCard
-                      key={course.id}
-                      id={course.id}
-                      title={course.title}
-                      description={course.description}
-                      image={course.image}
-                      duration={course.duration}
-                      level={course.level}
-                      lessons={course.lessons}
-                      rating={course.rating || 0}
-                      isEnrolled={enrolledCourseIds.includes(course.id)}
-                      className="cursor-pointer"
-                      style={{ animationDelay: `${filteredCourses.indexOf(course) * 0.1}s` }}
-                    />
-                  ))}
+                  {filteredCourses.map((course) => renderCourseCard(course))}
                 </div>
               ) : (
                 <CourseCategories courses={filteredCourses} />
@@ -200,17 +307,19 @@ const StudentExplore = () => {
           ) : (
             <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-ethiopia-sand/30">
               <h3 className="text-xl font-medium text-ethiopia-earth mb-4">No courses found</h3>
-              {searchTerm || levelFilter || durationFilter ? (
+              {searchTerm || levelFilter || durationFilter || categoryFilter || selectedTags.length > 0 ? (
                 <p className="text-gray-500 mb-6">Try adjusting your search or filters.</p>
               ) : (
                 <p className="text-gray-500 mb-6">There are no courses available at the moment.</p>
               )}
-              {(searchTerm || levelFilter || durationFilter) && (
+              {(searchTerm || levelFilter || durationFilter || categoryFilter || selectedTags.length > 0) && (
                 <Button 
                   onClick={() => {
                     setSearchTerm('');
                     setLevelFilter('');
                     setDurationFilter('');
+                    setCategoryFilter('');
+                    setSelectedTags([]);
                   }} 
                   variant="outline"
                   className="border-ethiopia-amber text-ethiopia-earth hover:bg-ethiopia-amber hover:text-white"
