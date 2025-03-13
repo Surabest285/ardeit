@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      certificates: {
+        Row: {
+          certificate_number: string
+          course_id: string
+          id: string
+          issue_date: string
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          certificate_number: string
+          course_id: string
+          id?: string
+          issue_date?: string
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          certificate_number?: string
+          course_id?: string
+          id?: string
+          issue_date?: string
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_categories: {
         Row: {
           created_at: string | null
@@ -404,7 +439,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_certificate_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       user_role: "student" | "teacher"

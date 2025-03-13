@@ -11,11 +11,13 @@ import {
   Loader2, 
   CheckCircle,
   Circle, 
-  Video
+  Video,
+  Award
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 interface Course {
   id: string;
@@ -62,6 +64,9 @@ const StudentClassroom = () => {
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [markingComplete, setMarkingComplete] = useState(false);
+  const [showCertificateDialog, setShowCertificateDialog] = useState(false);
+  const [certificateLoading, setCertificateLoading] = useState(false);
+  const [certificateNumber, setCertificateNumber] = useState<string | null>(null);
 
   const handleJoinLiveClass = () => {
     if (!courseId) return;
@@ -205,6 +210,99 @@ const StudentClassroom = () => {
     fetchLessonMaterials(lesson.id);
   };
 
+  const checkForExistingCertificate = async () => {
+    if (!user || !courseId) return false;
+
+    try {
+      const { data, error } = await supabase
+        .from('certificates')
+        .select('id, certificate_number')
+        .eq('user_id', user.id)
+        .eq('course_id', courseId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking certificate:', error);
+        return false;
+      }
+
+      if (data) {
+        setCertificateNumber(data.certificate_number);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Exception checking certificate:', error);
+      return false;
+    }
+  };
+
+  const generateCertificate = async () => {
+    if (!user || !courseId || !course) return;
+    
+    setCertificateLoading(true);
+    
+    try {
+      // Check if certificate already exists
+      const certificateExists = await checkForExistingCertificate();
+      
+      if (certificateExists) {
+        setShowCertificateDialog(true);
+        setCertificateLoading(false);
+        return;
+      }
+      
+      // Generate certificate number using the database function
+      const { data: certNumberData, error: certNumberError } = await supabase
+        .rpc('generate_certificate_number');
+        
+      if (certNumberError) {
+        console.error('Error generating certificate number:', certNumberError);
+        throw new Error('Failed to generate certificate number');
+      }
+      
+      const generatedCertNumber = certNumberData;
+      
+      // Create the certificate
+      const { data: certData, error: certError } = await supabase
+        .from('certificates')
+        .insert({
+          user_id: user.id,
+          course_id: courseId,
+          certificate_number: generatedCertNumber
+        })
+        .select('certificate_number')
+        .single();
+        
+      if (certError) {
+        console.error('Error creating certificate:', certError);
+        throw new Error('Failed to create certificate');
+      }
+      
+      setCertificateNumber(certData.certificate_number);
+      setShowCertificateDialog(true);
+      
+      toast({
+        title: "Congratulations!",
+        description: "You've earned a certificate for completing this course.",
+      });
+    } catch (error: any) {
+      console.error('Exception generating certificate:', error);
+      toast({
+        variant: "destructive",
+        title: "Certificate Error",
+        description: error.message || "Failed to generate certificate. Please try again.",
+      });
+    } finally {
+      setCertificateLoading(false);
+    }
+  };
+
+  const viewCertificate = () => {
+    navigate('/student/certificates');
+  };
+
   const markLessonComplete = async () => {
     if (!user || !currentLessonId) return;
     
@@ -275,6 +373,15 @@ const StudentClassroom = () => {
           })
           .eq('course_id', courseId)
           .eq('user_id', user.id);
+          
+        // If course is 100% complete, check/generate certificate
+        if (progressPercentage === 100) {
+          const certificateExists = await checkForExistingCertificate();
+          if (!certificateExists) {
+            // Show certificate prompt
+            setShowCertificateDialog(true);
+          }
+        }
       }
     } catch (error) {
       console.error('Exception marking lesson complete:', error);
@@ -471,6 +578,52 @@ const StudentClassroom = () => {
               )}
             </div>
           </div>
+          
+          {/* Certificate Dialog */}
+          <Dialog open={showCertificateDialog} onOpenChange={setShowCertificateDialog}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-ethiopia-amber" />
+                  Course Completed!
+                </DialogTitle>
+                <DialogDescription>
+                  Congratulations on completing the course! You've earned a certificate.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="text-center py-6">
+                <Award className="h-16 w-16 text-ethiopia-amber mx-auto mb-4" />
+                <h3 className="text-xl font-medium text-ethiopia-earth mb-2">{course?.title}</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  You've successfully completed all lessons in this course.
+                </p>
+                
+                {certificateNumber && (
+                  <p className="text-xs font-mono text-ethiopia-earth/60 mt-4">
+                    Certificate ID: {certificateNumber}
+                  </p>
+                )}
+              </div>
+              
+              <DialogFooter className="sm:justify-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCertificateDialog(false)}
+                >
+                  Close
+                </Button>
+                <Button 
+                  className="bg-ethiopia-amber text-white hover:bg-ethiopia-amber/90"
+                  onClick={certificateNumber ? viewCertificate : generateCertificate}
+                  disabled={certificateLoading}
+                >
+                  {certificateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {certificateNumber ? 'View Certificate' : 'Generate Certificate'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </ProtectedRoute>
