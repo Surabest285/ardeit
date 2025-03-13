@@ -11,6 +11,7 @@ type Profile = {
   role: UserRole;
   full_name: string | null;
   avatar_url: string | null;
+  bio: string | null;
   updated_at?: string;
 };
 
@@ -90,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, role, full_name, avatar_url, updated_at')
+        .select('id, role, full_name, avatar_url, bio, updated_at')
         .eq('id', userId)
         .maybeSingle();
 
