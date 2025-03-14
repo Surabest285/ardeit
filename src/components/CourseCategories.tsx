@@ -71,7 +71,7 @@ const CourseCategories: React.FC<CourseCategoriesProps> = ({ courses }) => {
               course_id,
               tag:tag_id(id, name)
             `)
-            .in('course_id', courseIds);
+            .in('course_id', courseIds.length > 0 ? courseIds : ['placeholder']);
             
           if (error) {
             console.error('Error fetching course tags:', error);

@@ -19,10 +19,11 @@ const StudentExplore = () => {
   const [activeTab, setActiveTab] = useState('grid');
   
   const filteredCourses = courses.filter(course => {
-    // Improved search logic to better match course titles
+    // Improved search logic to better match course titles and descriptions
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch = searchTerm === '' || 
-                        course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                        course.description.toLowerCase().includes(searchTerm.toLowerCase());
+                        course.title.toLowerCase().includes(searchLower) || 
+                        course.description.toLowerCase().includes(searchLower);
                         
     const matchesLevel = levelFilter === 'all' ? true : course.level === levelFilter;
     const matchesDuration = durationFilter === 'all' ? true : course.duration === durationFilter;
