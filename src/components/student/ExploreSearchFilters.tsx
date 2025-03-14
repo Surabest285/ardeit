@@ -72,7 +72,7 @@ const ExploreSearchFilters: React.FC<ExploreSearchFiltersProps> = ({
               <SelectValue placeholder="Level" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Levels</SelectItem>
+              <SelectItem value="all">All Levels</SelectItem>
               <SelectItem value="Beginner">Beginner</SelectItem>
               <SelectItem value="Intermediate">Intermediate</SelectItem>
               <SelectItem value="Advanced">Advanced</SelectItem>
@@ -85,7 +85,7 @@ const ExploreSearchFilters: React.FC<ExploreSearchFiltersProps> = ({
               <SelectValue placeholder="Duration" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any Duration</SelectItem>
+              <SelectItem value="all">Any Duration</SelectItem>
               <SelectItem value="1-2 weeks">1-2 weeks</SelectItem>
               <SelectItem value="2-4 weeks">2-4 weeks</SelectItem>
               <SelectItem value="1-2 months">1-2 months</SelectItem>
@@ -98,7 +98,7 @@ const ExploreSearchFilters: React.FC<ExploreSearchFiltersProps> = ({
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map(category => (
                 <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
               ))}

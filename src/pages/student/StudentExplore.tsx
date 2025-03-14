@@ -12,9 +12,9 @@ import { useExploreCourses } from '@/hooks/useExploreCourses';
 const StudentExplore = () => {
   const { courses, enrolledCourseIds, loading, categories, tags } = useExploreCourses();
   const [searchTerm, setSearchTerm] = useState('');
-  const [levelFilter, setLevelFilter] = useState('');
-  const [durationFilter, setDurationFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [levelFilter, setLevelFilter] = useState('all');
+  const [durationFilter, setDurationFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('grid');
   
@@ -24,9 +24,9 @@ const StudentExplore = () => {
                         course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
                         
-    const matchesLevel = levelFilter ? course.level === levelFilter : true;
-    const matchesDuration = durationFilter ? course.duration === durationFilter : true;
-    const matchesCategory = categoryFilter ? course.category_id === categoryFilter : true;
+    const matchesLevel = levelFilter === 'all' ? true : course.level === levelFilter;
+    const matchesDuration = durationFilter === 'all' ? true : course.duration === durationFilter;
+    const matchesCategory = categoryFilter === 'all' ? true : course.category_id === categoryFilter;
     
     // Filter by selected tags
     const matchesTags = selectedTags.length === 0 ? true : 
@@ -37,9 +37,9 @@ const StudentExplore = () => {
 
   const clearFilters = () => {
     setSearchTerm('');
-    setLevelFilter('');
-    setDurationFilter('');
-    setCategoryFilter('');
+    setLevelFilter('all');
+    setDurationFilter('all');
+    setCategoryFilter('all');
     setSelectedTags([]);
   };
 
