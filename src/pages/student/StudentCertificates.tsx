@@ -38,6 +38,7 @@ const StudentCertificates = () => {
       if (!user) return;
       
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('certificates')
           .select(`
@@ -65,6 +66,7 @@ const StudentCertificates = () => {
             description: "Failed to load certificates. Please try again.",
           });
         } else {
+          console.log('Fetched certificates:', data);
           setCertificates(data || []);
         }
       } catch (error) {
@@ -113,7 +115,7 @@ const StudentCertificates = () => {
               {certificates.map((certificate) => (
                 <Card key={certificate.id} className="overflow-hidden border border-ethiopia-sand/30 hover:shadow-md transition duration-300">
                   <div className="aspect-[4/3] relative overflow-hidden bg-ethiopia-earth/5">
-                    {certificate.course.image ? (
+                    {certificate.course?.image ? (
                       <img
                         src={certificate.course.image}
                         alt={certificate.course.title}
@@ -122,7 +124,9 @@ const StudentCertificates = () => {
                     ) : null}
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                       <Award className="h-16 w-16 text-ethiopia-amber mb-4" />
-                      <h3 className="text-xl font-bold text-ethiopia-terracotta">{certificate.course.title}</h3>
+                      <h3 className="text-xl font-bold text-ethiopia-terracotta">
+                        {certificate.course?.title || 'Course Certificate'}
+                      </h3>
                       <p className="text-sm text-ethiopia-earth mt-2">Certificate of Completion</p>
                       <p className="text-xs text-ethiopia-earth/70 mt-1">
                         Issued on {format(new Date(certificate.issue_date), 'MMMM d, yyyy')}
@@ -180,7 +184,7 @@ const StudentCertificates = () => {
                       has successfully completed the course
                     </p>
                     <h3 className="text-xl font-bold text-ethiopia-terracotta my-3">
-                      {selectedCertificate.course.title}
+                      {selectedCertificate.course?.title || 'Untitled Course'}
                     </h3>
                     <p className="text-sm text-ethiopia-earth/70">
                       Issued on {format(new Date(selectedCertificate.issue_date), 'MMMM d, yyyy')}

@@ -19,13 +19,20 @@ const StudentExplore = () => {
   const [activeTab, setActiveTab] = useState('grid');
   
   const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    // Improved search logic to better match course titles
+    const matchesSearch = searchTerm === '' || 
+                        course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
+                        
     const matchesLevel = levelFilter ? course.level === levelFilter : true;
     const matchesDuration = durationFilter ? course.duration === durationFilter : true;
     const matchesCategory = categoryFilter ? course.category_id === categoryFilter : true;
     
-    return matchesSearch && matchesLevel && matchesDuration && matchesCategory;
+    // Filter by selected tags
+    const matchesTags = selectedTags.length === 0 ? true : 
+      (course.tags && course.tags.some(tag => selectedTags.includes(tag.id)));
+    
+    return matchesSearch && matchesLevel && matchesDuration && matchesCategory && matchesTags;
   });
 
   const clearFilters = () => {

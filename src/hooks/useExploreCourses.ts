@@ -24,6 +24,7 @@ interface Course {
     id: string;
     name: string;
   };
+  tags?: { id: string; name: string }[];
 }
 
 interface Category {
@@ -50,6 +51,8 @@ export const useExploreCourses = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
+        
         // Fetch categories
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('course_categories')
@@ -90,7 +93,39 @@ export const useExploreCourses = () => {
           });
         } else {
           console.log('Fetched courses:', coursesData);
-          setCourses(coursesData || []);
+          
+          // Fetch course tags for each course
+          const courseIds = coursesData?.map(course => course.id) || [];
+          const { data: courseTagsData, error: courseTagsError } = await supabase
+            .from('course_tags_mapping')
+            .select(`
+              course_id,
+              tag:tag_id(id, name)
+            `)
+            .in('course_id', courseIds.length > 0 ? courseIds : ['placeholder']);
+            
+          if (!courseTagsError && courseTagsData) {
+            // Group tags by course
+            const courseTagsMap: Record<string, { id: string; name: string }[]> = {};
+            courseTagsData.forEach(item => {
+              if (item.tag && item.course_id) {
+                if (!courseTagsMap[item.course_id]) {
+                  courseTagsMap[item.course_id] = [];
+                }
+                courseTagsMap[item.course_id].push(item.tag as { id: string; name: string });
+              }
+            });
+            
+            // Add tags to courses
+            const coursesWithTags = coursesData?.map(course => ({
+              ...course,
+              tags: courseTagsMap[course.id] || []
+            })) || [];
+            
+            setCourses(coursesWithTags);
+          } else {
+            setCourses(coursesData || []);
+          }
         }
         
         // Fetch user enrollments to know which courses the user is already enrolled in
