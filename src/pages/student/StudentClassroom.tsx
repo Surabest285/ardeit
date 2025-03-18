@@ -50,6 +50,7 @@ interface Material {
 }
 
 const StudentClassroom = () => {
+  
   const { courseId } = useParams<{ courseId: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -263,6 +264,7 @@ const StudentClassroom = () => {
       }
       
       const generatedCertNumber = certNumberData;
+      console.log('Generated certificate number:', generatedCertNumber);
       
       // Create the certificate
       const { data: certData, error: certError } = await supabase
@@ -277,6 +279,11 @@ const StudentClassroom = () => {
         
       if (certError) {
         console.error('Error creating certificate:', certError);
+        toast({
+          variant: "destructive",
+          title: "Certificate Error",
+          description: "Failed to create certificate. Please try again.",
+        });
         throw new Error('Failed to create certificate');
       }
       
