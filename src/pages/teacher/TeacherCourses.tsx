@@ -6,8 +6,19 @@ import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import CourseCard from '@/components/CourseCard';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2, Video } from 'lucide-react';
+import { Plus, Loader2, Video, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Course {
   id: string;
@@ -27,6 +38,8 @@ const TeacherCourses = () => {
   const { toast } = useToast();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -59,8 +72,44 @@ const TeacherCourses = () => {
     fetchCourses();
   }, [user, toast]);
 
+  const handleDeleteCourse = async () => {
+    if (!courseToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', courseToDelete);
+        
+      if (error) {
+        console.error('Error deleting course:', error);
+        toast({
+          variant: "destructive",
+          title: "Delete Failed",
+          description: "There was a problem deleting this course. Please try again.",
+        });
+      } else {
+        setCourses(courses.filter(course => course.id !== courseToDelete));
+        toast({
+          title: "Course Deleted",
+          description: "The course has been deleted successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Exception deleting course:', error);
+    } finally {
+      setIsDeleting(false);
+      setCourseToDelete(null);
+    }
+  };
+
   const startLiveClass = (courseId: string) => {
     navigate(`/teacher/live-class/${courseId}`);
+  };
+  
+  const editCourse = (courseId: string) => {
+    navigate(`/teacher/courses/edit/${courseId}`);
   };
 
   return (
@@ -95,7 +144,7 @@ const TeacherCourses = () => {
                     lessons={course.lessons}
                     rating={course.rating}
                   />
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute top-2 right-2 flex flex-col gap-2">
                     <Button 
                       onClick={() => startLiveClass(course.id)}
                       size="sm"
@@ -104,6 +153,51 @@ const TeacherCourses = () => {
                       <Video className="h-4 w-4 mr-1" />
                       Start Live
                     </Button>
+                    <Button 
+                      onClick={() => editCourse(course.id)}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setCourseToDelete(course.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="flex items-center">
+                            <AlertTriangle className="h-5 w-5 text-destructive mr-2" />
+                            Delete Course
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete "{course.title}"? This action cannot be undone 
+                            and will remove all course content, including chapters, lessons, and student enrollments.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel onClick={() => setCourseToDelete(null)}>
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDeleteCourse}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            disabled={isDeleting}
+                          >
+                            {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}
