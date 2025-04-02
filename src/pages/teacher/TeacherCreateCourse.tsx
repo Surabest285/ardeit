@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -32,11 +31,10 @@ import { Loader2, Plus, X, Upload } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { FileUpload } from '@/components/ui/file-upload';
-import { uploadToCloudinary } from '@/utils/cloudinary';
+import { uploadToCloudinary, fetchCourseAttachments, Attachment } from '@/utils/cloudinary';
 import CourseAttachments from '@/components/course/CourseAttachments';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Define form schema with Zod
 const formSchema = z.object({
   title: z.string().min(5, {
     message: "Title must be at least 5 characters."
@@ -58,7 +56,6 @@ const formSchema = z.object({
   category_id: z.string().optional(),
 });
 
-// Define chapter and lesson types
 interface Chapter {
   title: string;
   position: number;
@@ -102,7 +99,6 @@ const TeacherCreateCourse = () => {
   const [courseId, setCourseId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("basic");
   
-  // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -129,7 +125,6 @@ const TeacherCreateCourse = () => {
     fetchCategories();
   }, [toast]);
   
-  // Initialize form with react-hook-form and zod validation
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -239,18 +234,8 @@ const TeacherCreateCourse = () => {
   
   const fetchAttachments = async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from('course_attachments')
-        .select('*')
-        .eq('course_id', id)
-        .order('created_at', { ascending: false });
-        
-      if (error) {
-        console.error('Error fetching attachments:', error);
-        return;
-      }
-      
-      setAttachments(data || []);
+      const data = await fetchCourseAttachments(id);
+      setAttachments(data);
     } catch (error) {
       console.error('Exception fetching attachments:', error);
     }
@@ -273,7 +258,6 @@ const TeacherCreateCourse = () => {
       let coverImageUrl = null;
       let thumbnailImageUrl = null;
       
-      // Upload images if provided
       if (coverImageFile) {
         coverImageUrl = await handleCoverImageUpload();
       }
@@ -282,7 +266,6 @@ const TeacherCreateCourse = () => {
         thumbnailImageUrl = await handleThumbnailUpload();
       }
       
-      // 1. Create or update the course
       const courseData = {
         teacher_id: user.id,
         title: values.title,
@@ -298,7 +281,6 @@ const TeacherCreateCourse = () => {
       
       let courseResult;
       if (courseId) {
-        // Update existing course
         const { data, error } = await supabase
           .from('courses')
           .update(courseData)
@@ -308,7 +290,6 @@ const TeacherCreateCourse = () => {
         if (error) throw error;
         courseResult = data[0];
       } else {
-        // Create new course
         const { data, error } = await supabase
           .from('courses')
           .insert(courseData)
@@ -321,7 +302,6 @@ const TeacherCreateCourse = () => {
       
       const newCourseId = courseResult.id;
       
-      // 2. Create sections (chapters)
       for (const chapter of chapters) {
         const { data: sectionData, error: sectionError } = await supabase
           .from('course_sections')
@@ -338,7 +318,6 @@ const TeacherCreateCourse = () => {
         
         const sectionId = sectionData[0].id;
         
-        // 3. Create lessons for each section
         for (const lesson of chapter.lessons) {
           const { error: lessonError } = await supabase
             .from('course_lessons')
@@ -356,14 +335,13 @@ const TeacherCreateCourse = () => {
           }
         }
       }
-        
+      
       toast({
         title: "Success",
         description: courseId ? "Course updated successfully!" : "Course created successfully!",
       });
       
       if (!courseId) {
-        // If we just created a new course, set it so attachments can be added
         setCourseId(newCourseId);
         setActiveTab("attachments");
       } else {
@@ -402,7 +380,6 @@ const TeacherCreateCourse = () => {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   <TabsContent value="basic" className="space-y-8">
-                    {/* Basic Information */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Basic Information</CardTitle>
@@ -627,7 +604,6 @@ const TeacherCreateCourse = () => {
                   </TabsContent>
                   
                   <TabsContent value="content" className="space-y-8">
-                    {/* Course Content */}
                     <Card>
                       <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>Course Content</CardTitle>
@@ -788,7 +764,6 @@ const TeacherCreateCourse = () => {
                   </TabsContent>
                   
                   <TabsContent value="attachments" className="space-y-8">
-                    {/* Attachments */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Course Attachments & Materials</CardTitle>

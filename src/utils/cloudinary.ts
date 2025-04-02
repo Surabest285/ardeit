@@ -41,6 +41,16 @@ export const uploadToCloudinary = async (file: File, folder: string) => {
   }
 };
 
+// Define an Attachment type that matches our database schema
+export interface Attachment {
+  id: string;
+  course_id: string;
+  title: string;
+  file_type: string;
+  file_url: string;
+  created_at: string;
+}
+
 /**
  * Save a course attachment to the database
  * @param courseId The course ID
@@ -54,10 +64,11 @@ export const saveCourseAttachment = async (
   title: string,
   fileType: string,
   fileUrl: string
-) => {
+): Promise<Attachment> => {
   try {
+    // Use explicit typecasting for now since the course_attachments table isn't in our types
     const { data, error } = await supabase
-      .from('course_attachments')
+      .from('course_attachments' as any)
       .insert({
         course_id: courseId,
         title,
@@ -71,7 +82,7 @@ export const saveCourseAttachment = async (
       throw error;
     }
     
-    return data[0];
+    return data[0] as Attachment;
   } catch (error) {
     console.error('Exception saving course attachment:', error);
     throw error;
@@ -83,10 +94,10 @@ export const saveCourseAttachment = async (
  * @param courseId The course ID
  * @returns Array of course attachments
  */
-export const fetchCourseAttachments = async (courseId: string) => {
+export const fetchCourseAttachments = async (courseId: string): Promise<Attachment[]> => {
   try {
     const { data, error } = await supabase
-      .from('course_attachments')
+      .from('course_attachments' as any)
       .select('*')
       .eq('course_id', courseId)
       .order('created_at', { ascending: false });
@@ -96,7 +107,7 @@ export const fetchCourseAttachments = async (courseId: string) => {
       throw error;
     }
     
-    return data || [];
+    return data as Attachment[];
   } catch (error) {
     console.error('Exception fetching course attachments:', error);
     throw error;
@@ -110,7 +121,7 @@ export const fetchCourseAttachments = async (courseId: string) => {
 export const deleteCourseAttachment = async (attachmentId: string) => {
   try {
     const { error } = await supabase
-      .from('course_attachments')
+      .from('course_attachments' as any)
       .delete()
       .eq('id', attachmentId);
       

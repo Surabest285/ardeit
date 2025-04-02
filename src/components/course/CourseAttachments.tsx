@@ -5,16 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Paperclip, X, FileIcon, FileImage, FileVideo } from 'lucide-react';
-import { uploadToCloudinary, saveCourseAttachment, deleteCourseAttachment } from '@/utils/cloudinary';
+import { uploadToCloudinary, saveCourseAttachment, deleteCourseAttachment, Attachment } from '@/utils/cloudinary';
 import { useToast } from '@/components/ui/use-toast';
-
-interface Attachment {
-  id: string;
-  title: string;
-  file_type: string;
-  file_url: string;
-  created_at: string;
-}
 
 interface CourseAttachmentsProps {
   courseId?: string;
