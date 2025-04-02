@@ -66,7 +66,7 @@ export const saveCourseAttachment = async (
   fileUrl: string
 ): Promise<Attachment> => {
   try {
-    // Use explicit typecasting for now since the course_attachments table isn't in our types
+    // Using explicit type casting since the database types aren't in sync
     const { data, error } = await supabase
       .from('course_attachments' as any)
       .insert({
