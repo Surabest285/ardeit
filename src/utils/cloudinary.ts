@@ -1,9 +1,10 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-// Cloudinary upload preset (set to 'unsigned' in your Cloudinary settings)
-const CLOUDINARY_UPLOAD_PRESET = 'ethiopian_edu';
-const CLOUDINARY_CLOUD_NAME = 'ethiopianedu';
+// Cloudinary configuration
+const CLOUDINARY_CLOUD_NAME = 'dfaltagfv';
+const CLOUDINARY_API_KEY = '798521868951768';
+const CLOUDINARY_UPLOAD_PRESET = 'ethiopian_edu'; // Keep your existing preset if it's configured
 const CLOUDINARY_API_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}`;
 
 /**
@@ -20,6 +21,7 @@ export const uploadToCloudinary = async (file: File, folder: string) => {
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     formData.append('folder', folder);
+    formData.append('api_key', CLOUDINARY_API_KEY);
     
     const response = await fetch(`${CLOUDINARY_API_URL}/${file.type.startsWith('image') ? 'image' : 'video'}/upload`, {
       method: 'POST',
@@ -87,7 +89,8 @@ export const saveCourseAttachment = async (
       throw new Error('No data returned from insert operation');
     }
     
-    return data[0] as Attachment;
+    // Use type assertion to match our Attachment interface
+    return data[0] as unknown as Attachment;
   } catch (error) {
     console.error('Exception saving course attachment:', error);
     throw error;
@@ -115,7 +118,8 @@ export const fetchCourseAttachments = async (courseId: string): Promise<Attachme
     // Type assertion with an explicit check
     if (!data) return [];
     
-    return data as Attachment[];
+    // Use type assertion to match our Attachment interface
+    return data as unknown as Attachment[];
   } catch (error) {
     console.error('Exception fetching course attachments:', error);
     throw error;
