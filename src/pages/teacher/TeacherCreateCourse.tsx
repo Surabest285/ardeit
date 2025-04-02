@@ -76,14 +76,6 @@ interface Category {
   name: string;
 }
 
-interface Attachment {
-  id: string;
-  title: string;
-  file_type: string;
-  file_url: string;
-  created_at: string;
-}
-
 const TeacherCreateCourse = () => {
   const { user } = useAuth();
   const navigate = useNavigate();

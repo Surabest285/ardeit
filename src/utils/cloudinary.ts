@@ -66,7 +66,7 @@ export const saveCourseAttachment = async (
   fileUrl: string
 ): Promise<Attachment> => {
   try {
-    // Using explicit type casting since the database types aren't in sync
+    // Using explicit type assertion since the database types aren't in sync
     const { data, error } = await supabase
       .from('course_attachments' as any)
       .insert({
@@ -80,6 +80,11 @@ export const saveCourseAttachment = async (
     if (error) {
       console.error('Error saving course attachment:', error);
       throw error;
+    }
+    
+    // Ensure data has the expected structure before returning
+    if (!data || data.length === 0) {
+      throw new Error('No data returned from insert operation');
     }
     
     return data[0] as Attachment;
@@ -106,6 +111,9 @@ export const fetchCourseAttachments = async (courseId: string): Promise<Attachme
       console.error('Error fetching course attachments:', error);
       throw error;
     }
+    
+    // Type assertion with an explicit check
+    if (!data) return [];
     
     return data as Attachment[];
   } catch (error) {
