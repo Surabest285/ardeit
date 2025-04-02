@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 // Cloudinary configuration
 const CLOUDINARY_CLOUD_NAME = 'dfaltagfv';
 const CLOUDINARY_API_KEY = '798521868951768';
-const CLOUDINARY_UPLOAD_PRESET = 'ethiopian_edu'; // Keep your existing preset if it's configured
+const CLOUDINARY_API_SECRET = 'kHYwRV24R5Sqp8Q3G8Wb9DUKJzM';
+const CLOUDINARY_UPLOAD_PRESET = 'ethiopian_edu'; 
 const CLOUDINARY_API_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}`;
 
 /**
